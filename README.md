@@ -13,7 +13,7 @@ A responsive news reader for discovering stories, searching across publishers, a
 ## Stack and provider
 
 ```text
-React + Vite -- /api (Vite proxy in development; same origin in production) --> Express --> TheNewsAPI
+React + Vite -- /api (Vite proxy in development; Vercel Function in production) --> Express --> TheNewsAPI
      `-- browser localStorage: saved articles
 ```
 
@@ -72,7 +72,19 @@ Manual checklist:
 
 ## Production deployment
 
-Build with `npm run build`, then start with `NODE_ENV=production` and `NEWS_API_KEY` configured. Express serves the generated `dist` files and API from one origin. Set the token in the hosting provider's secret manager; never put it in frontend code or commit it. Deploy behind HTTPS.
+### Deploy to Vercel
+
+This project builds the Vite frontend as static files in `dist` and runs the Express API as a Vercel Node.js Function through `api/[...path].js`.
+
+1. Import the GitHub repository into Vercel.
+2. Set the project **Root Directory** to `FULL_STACK/new-reader` if the repository root contains the parent folder; otherwise select the folder containing this README and `package.json`.
+3. Use the Vite framework preset. The repository's `vercel.json` specifies `npm run build` and `dist` as the output directory.
+4. In **Project Settings → Environment Variables**, add `NEWS_API_KEY` with your TheNewsAPI token for Preview and Production (and Development if you use Vercel's local tooling). Do not add the token to frontend `VITE_*` variables.
+5. Deploy. The Vercel URL serves the frontend, and `/api/news` and `/api/health` are handled by the Express function.
+
+No `CLIENT_ORIGIN` variable is needed for the same-origin Vercel deployment. After changing an environment variable, redeploy for it to take effect. Vercel serves the built static frontend separately; do not use `npm start` as the Vercel build command.
+
+For non-Vercel production hosting, build with `npm run build` and start with `NODE_ENV=production` and `NEWS_API_KEY` configured. Express serves the generated `dist` files locally. Set the token in the hosting provider's secret manager; never put it in frontend code or commit it. Deploy behind HTTPS.
 
 ## Limitations
 
